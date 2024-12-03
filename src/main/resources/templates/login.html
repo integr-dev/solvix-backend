@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="sunset">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css"/>
+    <script src="https://kit.fontawesome.com/0a7e2ccef9.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        i {
+            margin-right: 7px;
+        }
+
+        @keyframes floatDown {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes floatIn {
+            0% {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0px);
+                opacity: 1;
+            }
+        }
+
+
+        .float-down {
+            animation: floatDown 0.7s ease-in-out;
+        }
+
+        .float-down-fast {
+            animation: floatDown 0.5s ease-in-out;
+        }
+
+        .float-in {
+            animation: floatIn 0.7s ease-in-out;
+        }
+    </style>
+
+    <script>
+        function onThemeChange() {
+            const theme = document.querySelector('input[name="theme-dropdown"]:checked').value;
+            localStorage.setItem('theme', JSON.stringify(theme));
+        }
+
+        onload = () => {
+            const theme = JSON.parse(localStorage.getItem('theme'));
+            if (theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                document.querySelector(`input[value="${theme}"]`).checked = true;
+            }
+            const themeControllers = document.querySelectorAll('.theme-controller');
+            themeControllers.forEach(controller => {
+                controller.addEventListener('change', onThemeChange);
+            });
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            clearErrors();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            let xsrf = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN')).split('=')[1]
+
+            let result = await fetch("/api/account/login?username=" + username + "&password=" + password + "&remember-me=" + rememberMe, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': xsrf
+                },
+            });
+
+            if (result.status === 200) {
+                window.location.href = '/home';
+            } else if (result.status === 401) {
+                let errorData = await result.text();
+                setErrorMessage('submit-error', errorData);
+            }
+        }
+
+        function setErrorMessage(id, message) {
+            const errorElement = document.getElementById(id);
+            errorElement.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>' + message;
+        }
+
+        function clearErrorMessage(id) {
+            const errorElement = document.getElementById(id);
+            errorElement.innerHTML = '';
+        }
+
+        function clearErrors() {
+            clearErrorMessage('submit-error');
+        }
+    </script>
+</head>
+<body class="bg-base-200">
+<div class="sm:fixed top-4 right-4 p-4 sm:p-0 float-in">
+    <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn m-1 btn-neutral">
+            <i class="fa fa-palette"></i>
+            Theme
+        </div>
+        <ul tabindex="0" class="dropdown-content bg-base-300 rounded-box z-[1] w-52 p-2 shadow-2xl">
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Sunset"
+                        value="sunset" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Light"
+                        value="light" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Dark"
+                        value="dark" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Valentine"
+                        value="valentine" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Dracula"
+                        value="dracula" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Synthwave"
+                        value="synthwave" />
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="hero bg-base-200 min-h-screen">
+    <div class="hero-content flex-col lg:flex-row-reverse float-down">
+        <div class="text-center lg:text-left">
+            <h1 class="text-5xl font-bold"><i class="fa-solid fa-user"></i>Login</h1>
+            <p class="py-6">Welcome back! Please log into to your account. Have no account?</p>
+            <a href="/register" class="link text-primary"><i class="fa-solid fa-user-plus"></i>Create an account</a>
+        </div>
+        <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl float-down-fast lg:mr-32">
+            <form class="card-body" method="post" action="/login" onsubmit="handleSubmit(event)">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text"><i class="fa-solid fa-user"></i>Username</span>
+                    </label>
+                    <input id="username" type="text" placeholder="Username" class="input input-bordered input-primary" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text"><i class="fa-solid fa-key"></i>Password</span>
+                    </label>
+                    <input id="password" type="password" placeholder="Password" class="input input-bordered" />
+                    <label class="label">
+                        <a href="/forgot" class="label-text-alt link link-hover">Forgot password?</a>
+                    </label>
+                </div>
+                <div class="form-control mt-6">
+                    <label class="label cursor-pointer">
+                        <span class="label-text"><i class="fa-solid fa-repeat"></i>Remember me</span>
+                        <input id="remember-me" type="checkbox" class="checkbox checkbox-primary"/>
+                    </label>
+                </div>
+                <div class="form-control mt-6">
+                    <button class="btn btn-primary" type="submit"><i class="fa-solid fa-right-to-bracket"></i>Login</button>
+                    <label class="label">
+                        <span class="label-text text-error" id="submit-error"></span>
+                    </label>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

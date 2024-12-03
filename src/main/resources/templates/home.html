@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="sunset">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css"/>
+    <script src="https://kit.fontawesome.com/0a7e2ccef9.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        li i  {
+            margin-right: 7px;
+            margin-left: -6px;
+        }
+
+        p i {
+            margin-right: 7px;
+        }
+
+        @keyframes floatDown {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes floatIn {
+            0% {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0px);
+                opacity: 1;
+            }
+        }
+
+
+        @keyframes floatInLeft {
+            0% {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0px);
+                opacity: 1;
+            }
+        }
+
+        .float-down {
+            animation: floatDown 0.7s ease-in-out;
+        }
+
+        .float-down-fast {
+            animation: floatDown 0.5s ease-in-out;
+        }
+
+        .float-in {
+            animation: floatIn 0.7s ease-in-out;
+        }
+
+        .float-in-left {
+            animation: floatInLeft 0.7s ease-in-out;
+        }
+    </style>
+
+    <script>
+        function onThemeChange() {
+            const theme = document.querySelector('input[name="theme-dropdown"]:checked').value;
+            localStorage.setItem('theme', JSON.stringify(theme));
+        }
+
+        onload = () => {
+            const theme = JSON.parse(localStorage.getItem('theme'));
+            if (theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                document.querySelector(`input[value="${theme}"]`).checked = true;
+            }
+            const themeControllers = document.querySelectorAll('.theme-controller');
+            themeControllers.forEach(controller => {
+                controller.addEventListener('change', onThemeChange);
+            });
+        }
+
+        function logOut() {
+            fetch('/api/account/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/';
+                }
+            });
+        }
+    </script>
+</head>
+<body class="flex flex-inline">
+<ul class="menu bg-base-200 w-56 h-screen float-in-left float">
+    <p class="text-center text-xl mb-5 mt-5"><i class="fa-solid fa-hand-peace"></i>Welcome</p>
+    <li><a><i class="fa-solid fa-gauge-high"></i>Dashboard</a></li>
+    <li>
+        <details open>
+            <summary><i class="fa-solid fa-user"></i>Account</summary>
+            <ul>
+                <li><a><i class="fa-solid fa-database"></i>Details</a></li>
+                <li><a><i class="fa-solid fa-gear"></i>Settings</a></li>
+                <li>
+                    <details open>
+                        <summary><i class="fa-solid fa-video"></i>Content</summary>
+                        <ul>
+                            <li><a><i class="fa-solid fa-lock"></i>Solved</a></li>
+                            <li><a><i class="fa-solid fa-share-nodes"></i>Open</a></li>
+                        </ul>
+                    </details>
+                </li>
+            </ul>
+        </details>
+    </li>
+    <li>
+        <details open>
+            <summary><i class="fa-solid fa-user"></i>Tickets</summary>
+            <ul>
+                <li><a><i class="fa-solid fa-reply-all"></i>Answer</a></li>
+                <li><a><i class="fa-solid fa-plus"></i>Open</a></li>
+            </ul>
+        </details>
+    </li>
+    <div class="dropdown mb-0 mt-auto dropdown-top">
+        <li><div tabindex="0" role="button" class="btn btn-neutral m-5 mb-0"><i class="fa fa-palette"></i>Theme</div></li>
+        <ul tabindex="0" class="dropdown-content bg-base-300 rounded-box z-[1] w-52 p-2 shadow-2xl">
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Sunset"
+                        value="sunset" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Light"
+                        value="light" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Dark"
+                        value="dark" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Valentine"
+                        value="valentine" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Dracula"
+                        value="dracula" />
+            </li>
+            <li>
+                <input
+                        type="radio"
+                        name="theme-dropdown"
+                        class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                        aria-label="Synthwave"
+                        value="synthwave" />
+            </li>
+        </ul>
+    </div>
+    <li><a class="btn btn-error m-5" onclick="logOut()"><i class="fa-solid fa-right-from-bracket"></i>Log out</a></li>
+</ul>
+
+<div class="grid grid-rows-4 gap-4 p-5  h-screen w-screen float-down">
+    <div class="stats bg-base-200 w-30 col-span-3 float-in-left">
+        <div class="stat place-items-center">
+            <div class="stat-title">Upvotes</div>
+            <div class="stat-value"><i class="fa-solid fa-thumbs-up mr-3"></i>466</div>
+            <div class="stat-desc">In the last 30 days</div>
+        </div>
+
+        <div class="stat place-items-center">
+            <div class="stat-title">Solves</div>
+            <div class="stat-value text-primary"><i class="fa-solid fa-user-check mr-3"></i>13</div>
+            <div class="stat-desc text-primary">Counted if your comment is marked as a solution</div>
+        </div>
+
+        <div class="stat place-items-center">
+            <div class="stat-title">Downvotes</div>
+            <div class="stat-value"><i class="fa-solid fa-thumbs-down mr-3"></i>26</div>
+            <div class="stat-desc">In the last 30 days</div>
+        </div>
+    </div>
+    <div class="card bg-base-200 w-30 row-span-2 float-in">
+        <div class="card-body">
+            <h2 class="card-title mb-5"><i class="fa-solid fa-clock-rotate-left"></i>Recent activity</h2>
+            <div class="card bg-base-100 w-30">
+                <div class="card-body  p-2 pl-6">
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-question"></i>
+                        Whats 1+1?
+                        <button class="btn btn-primary ml-auto mr-0">View</button>
+                    </h2>
+                </div>
+            </div>
+            <div class="card bg-base-100 w-30">
+                <div class="card-body  p-2 pl-6">
+                    <h2 class="card-title">
+                        <i class="fa-solid fa-question"></i>
+                        How to code?
+                        <button class="btn btn-primary ml-auto mr-0">View</button>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card bg-base-200 w-30 row-span-2 float-in">
+        <div class="card-body">
+            <h2 class="card-title"><i class="fa-solid fa-hand-peace"></i>Welcome back John!</h2>
+            <p><i class="fa-solid fa-angle-right"></i>Welcome back! Feel free to ask and answer some questions! We are glad to see you again. Your contributions are valuable to our community.</p>
+            <p><i class="fa-solid fa-angle-right"></i>Don't hesitate to share your knowledge and help others by providing answers. If you have any questions, feel free to ask, and our community members will be happy to assist you.</p>
+            <div class="card-actions">
+                <button class="btn btn-primary">Ask a question</button>
+            </div>
+        </div>
+    </div>
+    <div class="card bg-base-200 w-30 row-span-1 float-in-left">
+        <div class="card-body">
+            <h2 class="card-title"><i class="fa-solid fa-gavel"></i>Punishment status</h2>
+            <p>When your meter fills up, you will be punished.</p>
+            <p class="text-primary font-bold">Punishment progress</p>
+            <progress class="progress progress-primary" value="10" max="100"></progress>
+        </div>
+    </div>
+</div>
+</body>
+</html>
