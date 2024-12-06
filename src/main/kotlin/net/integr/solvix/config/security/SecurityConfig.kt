@@ -37,7 +37,7 @@ class SecurityConfig {
         http
             .authorizeHttpRequests { requests ->
                 requests
-                    .requestMatchers("/register","/api/account/register").permitAll()
+                    .requestMatchers("/register","/api/account/register", "/login", "/api/account/login").not().authenticated()
                     .requestMatchers("/**").authenticated()
             }
             .csrf { csrf -> csrf

@@ -75,13 +75,13 @@
             const password = document.getElementById('password').value;
             const rememberMe = document.getElementById('remember-me').checked;
 
-            let xsrf = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN')).split('=')[1]
+            //let xsrf = document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN')).split('=')[1]
 
             let result = await fetch("/api/account/login?username=" + username + "&password=" + password + "&remember-me=" + rememberMe, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-XSRF-TOKEN': xsrf
+                    //'X-XSRF-TOKEN': xsrf
                 },
             });
 
