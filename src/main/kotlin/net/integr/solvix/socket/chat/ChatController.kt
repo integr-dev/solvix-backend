@@ -19,8 +19,7 @@ class ChatController @Autowired constructor(
     fun message(message: SendMessagePacket, user: Principal, @DestinationVariable ticketId: String) {
         val userObj = userService.findByUsername(user.name)
 
-        //TODO: Add to database
-
-        chatMessageManager.broadcast(message, userObj!!, ticketId)
+        chatMessageManager.saveMessage(message, userObj!!, ticketId)
+        chatMessageManager.broadcast(message, userObj, ticketId)
     }
 }

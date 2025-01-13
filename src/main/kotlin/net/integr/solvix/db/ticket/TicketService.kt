@@ -41,4 +41,12 @@ class TicketService @Autowired constructor(
         existing.title = ticketDto.title
         ticketRepo.save(existing)
     }
+
+    fun insertMessage(id: String, message: Message) {
+        var existing = ticketRepo.findById(id).orElse(null)
+        if (existing == null) return
+
+        existing.messages.add(message)
+        ticketRepo.save(existing)
+    }
 }

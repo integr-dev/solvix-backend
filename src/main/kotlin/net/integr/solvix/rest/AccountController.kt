@@ -1,6 +1,5 @@
 package net.integr.solvix.rest
 
-import io.micrometer.core.instrument.util.IOUtils
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import net.integr.solvix.db.user.User

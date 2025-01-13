@@ -22,6 +22,10 @@ class UserService(private val userRepository: UserRepository) : UserDetailsServi
         return userRepository.findByUsername(username)
     }
 
+    fun findById(id: String): User? {
+        return userRepository.findById(id).orElse(null)
+    }
+
     fun save(createUserDto: CreateUserDto): User {
         val user = User(
             createUserDto.username!!,
