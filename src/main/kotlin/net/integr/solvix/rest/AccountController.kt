@@ -1,5 +1,6 @@
 package net.integr.solvix.rest
 
+import io.micrometer.core.instrument.util.IOUtils
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import net.integr.solvix.db.user.User
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.io.IOException
@@ -40,7 +42,6 @@ class AccountController @Autowired constructor(var userService: UserService) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists!")
         } else {
             val newUser = userService.save(createUserDto)
-            print(newUser.username)
 
             try {
                 request.login(newUser.username, createUserDto.password)
@@ -54,14 +55,26 @@ class AccountController @Autowired constructor(var userService: UserService) {
     }
 
     @GetMapping("/me")
-    fun home(principal: Principal): ResponseEntity<UserDto> {
+    fun me(principal: Principal): ResponseEntity<UserDto> {
         val user = userService.findByUsername(principal.name)!!
 
         return ResponseEntity.ok(user.asUserDto())
     }
 
-    @PostMapping("/upload-profile-pic")
-    fun handleFileUpload(@RequestParam("file") file: MultipartFile, principal: Principal): ResponseEntity<String>  {
+    @GetMapping("/profile-pic", produces = ["image/png"])
+    fun profilePic(principal: Principal): ResponseEntity<ByteArray> {
+        var user = userService.findByUsername(principal.name)!!;
+
+        if (!user.hasProfilePicture) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ByteArray(0));
+        }
+
+        val picture = File("./accounts/profiles/" + user.id + "_profile.png");
+        return ResponseEntity.ok(picture.readBytes());
+    }
+
+    @PostMapping("/upload-profile-pic", consumes = ["multipart/form-data"])
+    fun uploadProfilePic(@RequestParam("file") file: MultipartFile, principal: Principal): ResponseEntity<String>  {
         if (file.isEmpty) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File is empty!");
 
         var user = userService.findByUsername(principal.name)!!;
@@ -72,9 +85,13 @@ class AccountController @Autowired constructor(var userService: UserService) {
 
         try {
             file.bytes;
+
+            var fileDirs = File("./accounts/profiles/");
+            if (!fileDirs.exists()) fileDirs.mkdirs();
+
             var uploadedFile = File("./accounts/profiles/" + user.id + "_profile.png");
 
-            file.transferTo(uploadedFile);
+            file.inputStream.transferTo(uploadedFile.outputStream());
             userService.setHasProfilePic(user.id!!, true);
 
             return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully: " + file.originalFilename);
@@ -126,5 +143,10 @@ class AccountController @Autowired constructor(var userService: UserService) {
         })
 
         return ResponseEntity<List<ErrorBinding>>(errMap, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException::class)
+    fun handleMaxSizeException(e: MaxUploadSizeExceededException): ResponseEntity<String> {
+        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("File too large, maximum: ${e.maxUploadSize}b!");
     }
 }
